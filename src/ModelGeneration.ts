@@ -59,6 +59,9 @@ function generateModels(
     });
     databaseModel.forEach((element) => {
         let casedFileName = "";
+        const suffix = generationOptions.fileSuffix
+            ? generationOptions.fileSuffix.toLowerCase()
+            : "";
         switch (generationOptions.convertCaseFile) {
             case "camel":
                 casedFileName = changeCase.camelCase(element.fileName);
@@ -77,7 +80,7 @@ function generateModels(
         }
         const resultFilePath = path.resolve(
             entitiesPath,
-            `${casedFileName}.ts`
+            `${casedFileName}${suffix}.ts`
         );
         const rendered = entityCompliedTemplate(element);
         const withImportStatements = removeUnusedImports(
@@ -180,6 +183,9 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
     });
     Handlebars.registerHelper("toFileName", (str) => {
         let retStr = "";
+        let suffix = generationOptions.fileSuffix
+            ? generationOptions.fileSuffix.toLowerCase()
+            : "";
         switch (generationOptions.convertCaseFile) {
             case "camel":
                 retStr = changeCase.camelCase(str);
@@ -196,7 +202,7 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
             default:
                 throw new Error("Unknown case style");
         }
-        return retStr;
+        return retStr + suffix;
     });
     Handlebars.registerHelper("printPropertyVisibility", () =>
         generationOptions.propertyVisibility !== "none"
@@ -259,6 +265,11 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
         ne: (v1, v2) => v1 !== v2,
         or: (v1, v2) => v1 || v2,
     });
+    Handlebars.registerHelper("toFileSuffix", () =>
+        generationOptions.fileSuffix
+            ? generationOptions.fileSuffix.toLowerCase()
+            : ""
+    );
 }
 
 function createTsConfigFile(tsconfigPath: string): void {

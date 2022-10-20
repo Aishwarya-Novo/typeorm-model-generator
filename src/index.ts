@@ -298,6 +298,18 @@ function checkYargsParameters(options: options): options {
             default: options.generationOptions.exportType === "default",
             describe: "Generate index file",
         },
+        gcf: {
+            alias: "graphql-code-first",
+            boolean: true,
+            default: options.generationOptions.graphqlCodeFirst,
+            describe: "Create graphql code first entities",
+        },
+        fs: {
+            alias: "file-suffix",
+            string: true,
+            default: options.generationOptions.fileSuffix,
+            describe: "add suffix to files. EX: ('.entity')",
+        },
     });
 
     options.connectionOptions.databaseNames = argv.d.split(",");
@@ -350,6 +362,8 @@ function checkYargsParameters(options: options): options {
     options.generationOptions.exportType = argv.defaultExport
         ? "default"
         : "named";
+    options.generationOptions.graphqlCodeFirst = argv.gcf;
+    options.generationOptions.fileSuffix = argv.fs;
 
     return options;
 }

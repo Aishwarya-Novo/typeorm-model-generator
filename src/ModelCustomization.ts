@@ -1,3 +1,4 @@
+import { ColumnType } from "typeorm";
 import { DataTypeDefaults } from "typeorm/driver/types/DataTypeDefaults";
 import { DefaultNamingStrategy } from "typeorm/naming-strategy/DefaultNamingStrategy";
 import { Entity } from "./models/Entity";
@@ -93,6 +94,10 @@ export default function modelCustomizationPhase(
     retVal = applyNamingStrategy(namingStrategy, dbModel);
     retVal = addImportsAndGenerationOptions(retVal, generationOptions);
     retVal = removeColumnDefaultProperties(retVal, defaultValues);
+    retVal = addGraphqlCodeFirstDecorators(
+        retVal,
+        generationOptions.graphqlCodeFirst
+    );
     return retVal;
 }
 function removeIndicesGeneratedByTypeorm(dbModel: Entity[]): Entity[] {
@@ -204,7 +209,7 @@ function findFileImports(dbModel: Entity[]) {
                     (v) => v.entityName === relation.relatedTable
                 )
             ) {
-                let relatedTable = dbModel.find(
+                const relatedTable = dbModel.find(
                     (related) => related.tscName == relation.relatedTable
                 )!;
                 entity.fileImports.push({
@@ -241,6 +246,42 @@ function addImportsAndGenerationOptions(
         if (generationOptions.generateConstructor) {
             entity.generateConstructor = true;
         }
+    });
+    return dbModel;
+}
+
+function addGraphqlCodeFirstDecorators(
+    dbModel: Entity[],
+    graphqlCodeFirst: boolean
+): Entity[] {
+    if (!graphqlCodeFirst) {
+        return dbModel;
+    }
+    dbModel.forEach((entity) => {
+        entity.graphqlCodeFirst = true;
+        entity.columns.forEach((column) => {
+            column.graphqlCodeFirst = true;
+            column.graphqlType = "String";
+            if (column.primary) {
+                column.graphqlType = "ID";
+            }
+            if (
+                [
+                    "float",
+                    "double",
+                    "dec",
+                    "decimal",
+                    "smalldecimal",
+                    "fixed",
+                    "numeric",
+                    "real",
+                    "double precision",
+                    "number",
+                ].indexOf(<string>column.type) !== -1
+            ) {
+                column.graphqlType = "Int";
+            }
+        });
     });
     return dbModel;
 }

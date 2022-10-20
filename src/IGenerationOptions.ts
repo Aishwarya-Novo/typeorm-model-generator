@@ -23,6 +23,8 @@ export default interface IGenerationOptions {
     skipSchema: boolean;
     indexFile: boolean;
     exportType: "named" | "default";
+    graphqlCodeFirst: boolean;
+    fileSuffix: string;
 }
 
 export const eolConverter = {
@@ -49,6 +51,8 @@ export function getDefaultGenerationOptions(): IGenerationOptions {
         skipSchema: false,
         indexFile: false,
         exportType: "named",
+        graphqlCodeFirst: false,
+        fileSuffix: "",
     };
     return generationOptions;
 }

@@ -56,6 +56,15 @@ Options:
                          and postgres. You can pass multiple values
                          separated by comma eg. -s scheme1,scheme2,scheme3
   --ssl                                               [boolean] [default: false]
+  -ce, --case-entity     Class name casing
+                                            [choices: "pascal", "camel", "none"]
+                                                             [default: "pascal"]              
+  -cp, --case-property   Property names (column name)
+                                   [choices: "pascal", "camel", "snake", "none"]
+                                                             [default: "pascal"]
+  --graphql-codefirst    Create graphql codefirst entities             [boolean]                   
+  --file-suffix          add suffix to files. Eg: ('.entity')      [default: ""]                   
+
 ```
 ### Examples
 
