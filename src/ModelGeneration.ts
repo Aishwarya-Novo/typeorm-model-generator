@@ -142,29 +142,38 @@ function createIndexFile(
 }
 
 function removeUnusedImports(rendered) {
-    let retString;
-    let offset = 0;
-
-    for (let i = 0; i < 2; i++) {
-        let openBracketIndex = rendered.indexOf("{", offset) + 1;
-        let closeBracketIndex = rendered.indexOf("}", offset);
-        offset = closeBracketIndex + 1;
-        const imports = rendered
+    let openBracketIndex = rendered.indexOf("{") + 1;
+    let closeBracketIndex = rendered.indexOf("}");
+    let imports = rendered
+        .substring(openBracketIndex, closeBracketIndex)
+        .split(",");
+    let restOfEntityDefinition = rendered.substring(closeBracketIndex);
+    let distinctImports = imports.filter(
+        (v) =>
+            restOfEntityDefinition.indexOf(`@${v}(`) !== -1 ||
+            (v === "BaseEntity" && restOfEntityDefinition.indexOf(v) !== -1)
+    );
+    openBracketIndex = rendered.indexOf("{") + 1;
+    rendered = `${rendered.substring(
+        0,
+        openBracketIndex
+    )}${distinctImports.join(",")}${restOfEntityDefinition}`;
+    if (rendered.indexOf("graphql") !== -1) {
+        openBracketIndex = rendered.indexOf("{", openBracketIndex + 1) + 1;
+        closeBracketIndex = rendered.indexOf("}", openBracketIndex + 1);
+        imports = rendered
             .substring(openBracketIndex, closeBracketIndex)
             .split(",");
-        const restOfEntityDefinition = rendered.substring(closeBracketIndex);
-        const distinctImports = imports.filter(
-            (v) =>
-                restOfEntityDefinition.indexOf(`@${v}(`) !== -1 ||
-                (v === "BaseEntity" && restOfEntityDefinition.indexOf(v) !== -1)
+        restOfEntityDefinition = rendered.substring(closeBracketIndex);
+        distinctImports = imports.filter(
+            (v) => restOfEntityDefinition.indexOf(`@${v}(`) !== -1
         );
-        retString = `${rendered.substring(
+        rendered = `${rendered.substring(
             0,
             openBracketIndex
         )}${distinctImports.join(",")}${restOfEntityDefinition}`;
     }
-
-    return retString;
+    return rendered;
 }
 
 function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
