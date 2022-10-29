@@ -141,21 +141,30 @@ function createIndexFile(
     });
 }
 
-function removeUnusedImports(rendered: string) {
-    const openBracketIndex = rendered.indexOf("{") + 1;
-    const closeBracketIndex = rendered.indexOf("}");
-    const imports = rendered
-        .substring(openBracketIndex, closeBracketIndex)
-        .split(",");
-    const restOfEntityDefinition = rendered.substring(closeBracketIndex);
-    const distinctImports = imports.filter(
-        (v) =>
-            restOfEntityDefinition.indexOf(`@${v}(`) !== -1 ||
-            (v === "BaseEntity" && restOfEntityDefinition.indexOf(v) !== -1)
-    );
-    return `${rendered.substring(0, openBracketIndex)}${distinctImports.join(
-        ","
-    )}${restOfEntityDefinition}`;
+function removeUnusedImports(rendered) {
+    let retString;
+    let offset = 0;
+
+    for (let i = 0; i < 2; i++) {
+        let openBracketIndex = rendered.indexOf("{", offset) + 1;
+        let closeBracketIndex = rendered.indexOf("}", offset);
+        offset = closeBracketIndex + 1;
+        const imports = rendered
+            .substring(openBracketIndex, closeBracketIndex)
+            .split(",");
+        const restOfEntityDefinition = rendered.substring(closeBracketIndex);
+        const distinctImports = imports.filter(
+            (v) =>
+                restOfEntityDefinition.indexOf(`@${v}(`) !== -1 ||
+                (v === "BaseEntity" && restOfEntityDefinition.indexOf(v) !== -1)
+        );
+        retString = `${rendered.substring(
+            0,
+            openBracketIndex
+        )}${distinctImports.join(",")}${restOfEntityDefinition}`;
+    }
+
+    return retString;
 }
 
 function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
