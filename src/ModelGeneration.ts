@@ -166,7 +166,9 @@ function removeUnusedImports(rendered) {
             .split(",");
         restOfEntityDefinition = rendered.substring(closeBracketIndex);
         distinctImports = imports.filter(
-            (v) => restOfEntityDefinition.indexOf(`@${v}(`) !== -1
+            (v) =>
+                restOfEntityDefinition.indexOf(`@${v}(`) !== -1 ||
+                restOfEntityDefinition.indexOf(`@Field(() => ${v})`) !== -1
         );
         rendered = `${rendered.substring(
             0,
